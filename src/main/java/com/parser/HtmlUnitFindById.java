@@ -19,7 +19,7 @@ import org.w3c.dom.Element;
 
 public class HtmlUnitFindById {
 
-
+    // Properties Constants
     private static final String PROPERTIES = "config.properties";
     private static final String ELEMENT_ID = "original.elementId";
     private static final String ADDRESS_CONFIG = "address.configuration";
@@ -37,9 +37,8 @@ public class HtmlUnitFindById {
         }
     }
 
-
+   // program entry point
     public static void main(String[] args) {
-        boolean isNotEmpty = (args.length != 0);
         HtmlPage original = null;
         HtmlPage diffPage = null;
         Element resultElement = null;
@@ -62,47 +61,48 @@ public class HtmlUnitFindById {
     }
 
     /**
+     * Validates the command line input parameters
      *
-     * @param args
-     * @return
+     * @param args - command line input parameters to check
+     * @return if args are valid to continue execution true else false
      */
     private static boolean checkArgs(String... args) {
-
         if (args.length == 2 && !args[0].isEmpty()&&!args[1].isEmpty()) {
             return true;
         } else if (args.length == 1) {
             LOGGER.warn("Incorrect arguments specified !!!");
+            return false;
         } else {
             return false;
         }
-        return true;
     }
 
 
     /**
      * Prepare configuration to be available during program execution in runtime
      *
-     * @return
-     * @throws IOException
+     * @return System properties
+     * @throws IOException -  IllegalArgumentException if the input stream contains a
+     *                        malformed Unicode escape sequence.
      */
 
     private static Properties getConfiguration() throws IOException {
         Properties properties = new Properties();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream inputStream = null;
-        inputStream = loader.getResourceAsStream(PROPERTIES);
+        InputStream inputStream = loader.getResourceAsStream(PROPERTIES);
         properties.load(inputStream);
         return properties;
     }
 
     /**
+     * Finds changed element in the diff case
      *
-     * @param element
-     * @param pageToSearch
-     * @return
+     * @param element - original element used in the search of the diff
+     * @param pageToSearch - instance of the HtmlPage to search diff
+     * @return Element of the XML/HTML page
      */
     private static Element findElementInDiffCase(HtmlAnchor element, HtmlPage pageToSearch) {
-        Element result = null;
+        Element result;
         String hrefValue = element.getHrefAttribute();
         List<HtmlAnchor> htmlAnchors = pageToSearch.getAnchors();
         List<HtmlAnchor> filtered =
@@ -118,17 +118,17 @@ public class HtmlUnitFindById {
     /**
      * Opens specified html page
      *
-     * @param client
-     * @param item
-     * @return
+     * @param client - WebClient instance
+     * @param path - path to the file on the local
+     * @return HtmlPage instance
      */
 
-    private static HtmlPage openPage(WebClient client, String item) {
+    private static HtmlPage openPage(WebClient client, String path) {
         HtmlPage page = null;
         String property = properties.getProperty(ADDRESS_CONFIG);
-        String query = property + item;
+        String query = property + path;
         try {
-            page = (HtmlPage) client.getPage(query);
+            page = client.getPage(query);
         } catch (IOException e) {
             LOGGER.error("Can't continue working with document. Exception -", e);
         }
@@ -136,8 +136,10 @@ public class HtmlUnitFindById {
     }
 
     /**
+     * Create an instance of the WebClient (Browser)
+     * without CSS and JavaScript support
      *
-     * @return
+     * @return instance of the WebClient
      */
 
     private static WebClient configureWebClient() {
