@@ -1,0 +1,29 @@
+group 'com.parser'
+version '0.0.1'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+mainClassName = "com.parser.HtmlUnitFindById"
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+
+dependencies {
+    compile 'net.sourceforge.htmlunit:htmlunit:2.4'
+    compile 'org.slf4j:slf4j-log4j12:1.7.25'
+    testCompile 'junit:junit:4.12'
+}
+
+jar {
+
+    manifest.attributes("Main-Class": mainClassName);
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
